@@ -90,6 +90,19 @@ def create_usage_mapping():
         '1-2': 1.5, '3-5': 4, '6-10': 8, '11-15': 13, '16-20': 18, '21+': 25
     }
 
+def get_color_scale(n, reverse=False):
+    """Get a proper color scale for charts"""
+    if n <= 1:
+        return ['#27ae60']
+    elif n == 2:
+        return ['#e74c3c', '#27ae60'] if not reverse else ['#27ae60', '#e74c3c']
+    elif n == 3:
+        return ['#e74c3c', '#f39c12', '#27ae60'] if not reverse else ['#27ae60', '#f39c12', '#e74c3c']
+    elif n == 4:
+        return ['#e74c3c', '#e67e22', '#2ecc71', '#27ae60'] if not reverse else ['#27ae60', '#2ecc71', '#e67e22', '#e74c3c']
+    else:
+        return ['#e74c3c', '#e67e22', '#f39c12', '#2ecc71', '#27ae60'][:n] if not reverse else ['#27ae60', '#2ecc71', '#f39c12', '#e67e22', '#e74c3c'][:n]
+
 # Load data function
 @st.cache_data
 def load_data():
@@ -435,10 +448,13 @@ if df is not None:
                     if acceptance_data:
                         price_df = pd.DataFrame(acceptance_data)
                         
+                        # FIX: Use proper color scale
+                        colors = get_color_scale(len(price_df), reverse=True)
+                        
                         fig4b = go.Figure(go.Bar(
                             x=price_df['Price'],
                             y=price_df['Acceptance Rate'],
-                            marker_color=px.colors.sequential.RdYlGn_r[:len(price_df)],
+                            marker_color=colors,
                             text=price_df['Acceptance Rate'].round(1),
                             texttemplate='%{text}%',
                             textposition='outside'
@@ -1247,10 +1263,13 @@ if df is not None:
                                     with col2:
                                         purchase_dist = new_data['predicted_purchase_likelihood'].value_counts()
                                         
+                                        # FIX: Use proper color scale
+                                        colors = get_color_scale(len(purchase_dist), reverse=True)
+                                        
                                         fig_purchase = go.Figure(data=[go.Bar(
                                             x=purchase_dist.index,
                                             y=purchase_dist.values,
-                                            marker_color=px.colors.sequential.RdYlGn_r
+                                            marker_color=colors
                                         )])
                                         
                                         fig_purchase.update_layout(
